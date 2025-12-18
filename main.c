@@ -10,21 +10,25 @@ void handleEvent(SDL_Event e) {
 	}
 }
 
-int main(int argc, char* argv[]) {
+int initWindow(const int width, const int height) {
 	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
 		SDL_Log("SDL_Init Error: %s", SDL_GetError());
-		return 1;
+		return 0;
 	}
-
-	int width, height;
-	width = 640;
-	height = 480;
-
+	
 	SDL_Window *window;
-	window = SDL_CreateWindow("Image Viewer",
-							  SDL_WINDOWPOS_CENTERED,
-							  SDL_WINDOWPOS_CENTERED,
-							  width, height, 0);
+	SDL_CreateWindow("Image Viewer",
+					SDL_WINDOWPOS_CENTERED,
+					SDL_WINDOWPOS_CENTERED,
+					width, height, 0);
+
+	return 1;
+}
+
+int main(int argc, char* argv[]) {
+	if (!initWindow(640, 480)) {
+		return 0;
+	}
 
 	SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
 	SDL_SetRenderDrawColor(renderer, 255, 0, 0 , 255);
