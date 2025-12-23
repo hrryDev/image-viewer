@@ -38,12 +38,14 @@ void read_ppm(FILE* file, const int width, const int height) {
 	size_t bytesRead;
 	ppm_pixel image_data[width * height];
 
+	int count = 0;
 	for (int row = 0; row < height; ++row) {
 		for (int pixel = 0; pixel < width; ++pixel) {
+			++count;
 			bytesRead = fread(&pixel_buffer, sizeof(ppm_pixel), 1, file);
 
 			if (bytesRead == 1) {
-				printf("\nPixel %d read.\n", pixel );
+				printf("\nPixel %d read.\n", count);
 				printf("Red = %d\n", pixel_buffer.red);
 				printf("Green = %d\n", pixel_buffer.green);
 				printf("Blue = %d\n\n", pixel_buffer.blue);
