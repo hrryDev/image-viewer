@@ -1,6 +1,9 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_events.h>
+#include <SDL2/SDL_pixels.h>
 #include <SDL2/SDL_render.h>
+#include <SDL2/SDL_stdinc.h>
+#include <SDL2/SDL_surface.h>
 #include <SDL2/SDL_video.h>
 #include <stdbool.h>
 
@@ -24,7 +27,7 @@ typedef struct {
 typedef struct {
 	int width;
 	int height;
-	pixel_8* image_data;
+	pixel_8* data;
 } Image;
 
 SDL_Window* initWindow(const int width, const int height) {
@@ -69,7 +72,7 @@ Format read_format(FILE* file) {
 }
 
 Image read_ppm(FILE* file) {
-	int width, height, image_data_width, max_value;
+	int width, height, image_data_width, max_value, size_of_image_data;
 	char line[256];
 
 	pixel_8 pixel_buffer;
@@ -84,12 +87,13 @@ Image read_ppm(FILE* file) {
 
 	sscanf(line, "%d %d", &width, &height);
 	image_data_width = sizeof(pixel_8) * width;
-	image_data = (pixel_8*) malloc(image_data_width * height);
+	size_of_image_data = sizeof(pixel_8) * width * height;
+	image_data = (pixel_8*) malloc(size_of_image_data);
 
 	printf("width = %d, height = %d\n\n", width, height);
 	printf("pixel size = %li bytes\n", sizeof(pixel_8));
 	printf("image_data_width = %d bytes\n", image_data_width);
-	printf("image_data memory allocated = %d bytes\n", image_data_width * height);
+	printf("image_data memory allocated = %d bytes\n", size_of_image_data);
 
 	// Read max value TODO: figure out what this would be used for
 	fgets(line, sizeof(line), file);
@@ -108,7 +112,7 @@ Image read_ppm(FILE* file) {
 				// printf("  Red = %d\n", pixel_buffer.red);
 				// printf("Green = %d\n", pixel_buffer.green);
 				// printf(" Blue = %d\n\n", pixel_buffer.blue);
-				image_data[pixel] = pixel_buffer;
+				image_data[count] = pixel_buffer;
 			} else {
 				fprintf(stderr, "Error reading pixel data.\n");
 				exit(1);
@@ -117,18 +121,36 @@ Image read_ppm(FILE* file) {
 	}
 
 	Image image;
-	image.image_data = image_data;
+	image.data = image_data;
 	image.width = width;
 	image.height = height;
+
+
+	// for (int row = 0; row < width; ++row) {
+	// 	for (int col = 0; col < height; ++col) {
+	// 		int index = row * width + col;
+	// 		printf("(%d, %d)\nr=%d g=%d b=%d\n", row, col, image_data[index].red, image_data[index].green, image_data[index].blue);
+	// 	}
+	// 	printf("\n");
+	// }
 
 	return image;
 }
 
+void put_pixel(SDL_Surface* surface, int x, int y, Uint32 colour) {
+	Uint8 * pixel = (Uint8*)surface->pixels;
+	pixel += (y * surface->pitch) + (x * sizeof(Uint32));
+	*((Uint32*)pixel) = colour;
+}
+
 int main(int argc, char* argv[]) {
+	Uint32 colour;
 	FILE* file;
-	Format format;
+	Format file_format;
 	Image image;
 	SDL_Window* window;
+	SDL_Surface* surface;
+	SDL_PixelFormat* surface_format;
 
 	if (argc != 2) {
 		printf("Usage: %s [filename]\n", argv[0]);
@@ -136,9 +158,9 @@ int main(int argc, char* argv[]) {
 	}
 
 	file = open_file(argv[1]);
-	format = read_format(file);
+	file_format = read_format(file);
 
-	switch (format) {
+	switch (file_format) {
 		case P6:
 			image = read_ppm(file);
 			break;
@@ -159,7 +181,22 @@ int main(int argc, char* argv[]) {
 		exit(3);
 	}
 
-	SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
+	surface = SDL_GetWindowSurface(window);
+	surface_format = surface->format;
+	SDL_LockSurface(surface);
+
+	for (int row = 0; row < image.height; ++row) {
+		for (int col = 0; col < image.width; ++col) {
+			int index = row * image.width + col;
+			colour = SDL_MapRGB(surface_format, image.data[index].red, image.data[index].green, image.data[index].blue);
+			put_pixel(surface, col, row, colour);
+		}
+	}
+	
+	SDL_UnlockSurface(surface);
+	SDL_UpdateWindowSurface(window);
+
+	// SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
 	//	SDL_SetRenderDrawColor(renderer, 255, 0, 0 , 255);
 
 	// // Clear Window (creates a red background)
@@ -186,7 +223,7 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-	free(image.image_data);
+	free(image.data);
 	SDL_Quit();
 	return 0;
 }
