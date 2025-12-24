@@ -1,13 +1,17 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
-#include <stdint.h>
+struct pixel {
+	char red;
+	char green;
+	char blue;
+};
 
-typedef struct Image {
+struct image {
 	int width;
 	int height;
-	Uint32 data;
-} Image;
+	pixel* data;
+};
 
 #endif
 
