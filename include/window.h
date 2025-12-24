@@ -1,9 +1,9 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
-#include <SDL2/SDL_video.h>
+#include <SDL.h>
 
-SDL_Window* init_window(int width, int height);
-void put_pixels(SDL_Surface* surface, int x, int y, Uint32 color);
+SDL_Window* init_window(const int width, const int height, const char* window_title);
+void put_pixel(SDL_Surface* surface, const int x, const int y, const Uint32 color);
 
 #endif // !WINDOW_H

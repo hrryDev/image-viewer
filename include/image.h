@@ -10,8 +10,7 @@ struct pixel {
 struct image {
 	int width;
 	int height;
-	pixel* data;
+	struct pixel* data;
 };
 
 #endif
-
