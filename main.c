@@ -13,12 +13,6 @@ typedef enum Format {
 } Format;
 
 typedef struct {
-	unsigned short red;
-	unsigned short green;
-	unsigned short blue;
-} pixel_4;
-
-typedef struct {
 	uint8_t red;
 	uint8_t green;
 	uint8_t blue;
