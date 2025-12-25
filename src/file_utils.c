@@ -15,7 +15,7 @@ FILE* open_file(const char* filename) {
 	return file;
 }
 
-enum format read_format(FILE *file) {
+enum format read_format(FILE* file) {
 	char line[256];
 
 	fgets(line, sizeof(line), file);

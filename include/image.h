@@ -1,10 +1,11 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
+#include <stdint.h>
 struct pixel {
-	char red;
-	char green;
-	char blue;
+	uint8_t red;
+	uint8_t green;
+	uint8_t blue;
 };
 
 struct image {

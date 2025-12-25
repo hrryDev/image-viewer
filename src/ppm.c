@@ -42,11 +42,12 @@ struct image get_image_data(FILE *file, const struct ppm_header header) {
 
 	for (int row = 0; row < header.height; ++row) {
 		for (int pixel = 0; pixel < header.width; ++pixel) {
+			++count;
 			bytesRead = fread(&pixel_buffer, sizeof(struct pixel), 1, file);
 
 			if (bytesRead) {
 				image.data[count] = pixel_buffer;
-				printf("Read pixel %d: %d %d %d", count, image.data[count].red, image.data[count].green, image.data[count].blue);
+				printf("Read pixel %d: %d %d %d\n", count, image.data[count].red, image.data[count].green, image.data[count].blue);
 			} else {
 				fprintf(stderr, "ERROR: Could not read pixel data\n");
 				free(image.data);
